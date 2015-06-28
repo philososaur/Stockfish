@@ -31,6 +31,8 @@
 
 using namespace std;
 
+bool RunningBench;
+
 namespace {
 
 const vector<string> Defaults = {
@@ -142,6 +144,7 @@ void benchmark(const Position& current, istream& is) {
       file.close();
   }
 
+  RunningBench = true;
   uint64_t nodes = 0;
   Search::StateStackPtr st;
   TimePoint elapsed = now();
@@ -164,6 +167,7 @@ void benchmark(const Position& current, istream& is) {
   }
 
   elapsed = now() - elapsed + 1; // Ensure positivity to avoid a 'divide by zero'
+  RunningBench = false;
 
   dbg_print(); // Just before to exit
 

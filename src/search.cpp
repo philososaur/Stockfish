@@ -60,6 +60,8 @@ using std::string;
 using Eval::evaluate;
 using namespace Search;
 
+extern bool RunningBench;
+
 namespace {
 
   int c[4], cc[4] = { 40, 40, 40, 40 };
@@ -70,7 +72,7 @@ namespace {
     static bool startup = true; // To workaround fishtest bench
 
     for (int i = 0; i < 4; i++)
-        c[i] = startup ? 0 : cc[i] + (rng.rand<unsigned>() % 20) > 50;
+        c[i] = startup || RunningBench ? 0 : cc[i] + (rng.rand<unsigned>() % 20) > 50;
 
     startup = false;
 
@@ -245,6 +247,8 @@ template uint64_t Search::perft<true>(Position& pos, Depth depth);
 /// searches from RootPos and at the end prints the "bestmove" to output.
 
 void Search::think() {
+
+  set_binary(); // Set new values every search
 
   Color us = RootPos.side_to_move();
   Time.init(Limits, us, RootPos.game_ply(), now());
