@@ -62,6 +62,25 @@ using namespace Search;
 
 namespace {
 
+  int c[4], cc[4] = { 40, 40, 40, 40 };
+
+  void set_binary() {
+
+    static PRNG rng(now());
+    static bool startup = true; // To workaround fishtest bench
+
+    for (int i = 0; i < 4; i++)
+        c[i] = startup ? 0 : cc[i] + (rng.rand<unsigned>() % 20) > 50;
+
+    startup = false;
+
+    for (int i = 0; i < 4; i++)
+        sync_cout << c[i] << sync_endl;
+  }
+
+  TUNE(SetRange(30,50), cc, set_binary);
+
+
   // Different node types, used as template parameter
   enum NodeType { Root, PV, NonPV };
 
@@ -672,10 +691,10 @@ namespace {
 
     // Step 6. Razoring (skipped when in check)
     if (   !PvNode
-        &&  depth < 4 * ONE_PLY
-        &&  eval + razor_margin(depth) <= alpha
-        &&  ttMove == MOVE_NONE
-        && !pos.pawn_on_7th(pos.side_to_move()))
+        && (c[0] || depth < 4 * ONE_PLY)
+        && (c[1] || eval + razor_margin(depth) <= alpha)
+        && (c[2] || ttMove == MOVE_NONE)
+        && (c[3] || !pos.pawn_on_7th(pos.side_to_move())))
     {
         if (   depth <= ONE_PLY
             && eval + razor_margin(3 * ONE_PLY) <= alpha)
